@@ -13,26 +13,22 @@ export default function NoteMenu({ pinned, onTogglePin, onDelete }) {
   }, []);
 
   return (
-    <div
-      ref={ref}
-      className="relative"
-      onClick={(e) => e.stopPropagation()}
-    >
+    <div ref={ref} className="relative" onClick={(e) => e.stopPropagation()}>
       <button
         onClick={() => setOpen((o) => !o)}
         aria-label="Note options"
-        className="flex h-7 w-7 items-center justify-center rounded-full text-ink-soft transition hover:bg-accent-soft hover:text-ink"
+        className="flex h-7 w-7 items-center justify-center border-[3px] border-ink bg-paper text-ink transition hover:bg-accent-soft"
       >
         ⋯
       </button>
       {open && (
-        <div className="absolute right-0 z-10 mt-1 w-36 overflow-hidden rounded-xl border border-line bg-white py-1 shadow-md">
+        <div className="pixel-panel absolute right-0 z-10 mt-1 w-40 overflow-hidden bg-paper py-1">
           <button
             onClick={() => {
               onTogglePin();
               setOpen(false);
             }}
-            className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-ink hover:bg-accent-soft"
+            className="flex w-full items-center gap-2 px-3 py-2 text-left font-body text-lg text-ink hover:bg-accent-soft"
           >
             {pinned ? "📌 Unpin" : "📌 Pin it"}
           </button>
@@ -41,7 +37,7 @@ export default function NoteMenu({ pinned, onTogglePin, onDelete }) {
               onDelete();
               setOpen(false);
             }}
-            className="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-red-600 hover:bg-red-50"
+            className="flex w-full items-center gap-2 px-3 py-2 text-left font-body text-lg text-accent hover:bg-accent-soft"
           >
             🗑️ Delete
           </button>

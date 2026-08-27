@@ -1,21 +1,80 @@
-@import url("https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,450;9..144,550;9..144,650&family=Inter:wght@400;500;600&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap");
 @import "tailwindcss";
 
 @theme {
-  --font-sans: "Inter", system-ui, sans-serif;
-  --font-display: "Fraunces", Georgia, serif;
-  --color-paper: #faf7f2;
-  --color-paper-dim: #f2ede3;
-  --color-ink: #211c16;
-  --color-ink-soft: #6b6255;
-  --color-accent: #b45309;
-  --color-accent-soft: #fef3e2;
-  --color-line: #e6ddcd;
+  --font-display: "Press Start 2P", monospace;
+  --font-body: "VT323", ui-monospace, monospace;
+
+  --color-paper: #e7d8b3;
+  --color-paper-dim: #d8c495;
+  --color-paper-dark: #c7ae7a;
+  --color-ink: #2b1d0e;
+  --color-ink-soft: #6b5535;
+  --color-accent: #7a1f1f;
+  --color-accent-soft: #efc873;
+  --color-line: #2b1d0e;
 }
 
 body {
   margin: 0;
-  background: var(--color-paper);
-  font-family: var(--font-sans);
+  background-color: var(--color-paper);
+  background-image: radial-gradient(var(--color-paper-dark) 1px, transparent 1px);
+  background-size: 4px 4px;
+  font-family: var(--font-body);
   color: var(--color-ink);
+}
+
+@layer components {
+  .pixel-panel {
+    border: 3px solid var(--color-ink);
+    box-shadow: 6px 6px 0 var(--color-ink);
+    background-color: var(--color-paper);
+  }
+
+  .pixel-btn {
+    border: 3px solid var(--color-ink);
+    box-shadow: 4px 4px 0 var(--color-ink);
+    background-color: var(--color-accent);
+    color: var(--color-paper);
+    font-family: var(--font-display);
+    font-size: 0.65rem;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    transition: transform 0.05s ease, box-shadow 0.05s ease;
+  }
+  .pixel-btn:hover {
+    filter: brightness(1.1);
+  }
+  .pixel-btn:active {
+    transform: translate(4px, 4px);
+    box-shadow: 0 0 0 var(--color-ink);
+  }
+
+  .pixel-btn-outline {
+    background-color: var(--color-paper);
+    color: var(--color-ink);
+  }
+
+  .pixel-input {
+    border: 3px solid var(--color-ink);
+    background-color: var(--color-paper-dim);
+    box-shadow: inset 3px 3px 0 rgba(43, 29, 14, 0.15);
+    font-family: var(--font-body);
+    color: var(--color-ink);
+  }
+  .pixel-input:focus {
+    outline: none;
+    box-shadow: inset 3px 3px 0 rgba(43, 29, 14, 0.15), 0 0 0 3px var(--color-accent-soft);
+  }
+
+  .ruled-paper {
+    background-image: repeating-linear-gradient(
+      to bottom,
+      transparent,
+      transparent 31px,
+      var(--color-ink-soft) 32px
+    );
+    background-attachment: local;
+    opacity: 0.92;
+  }
 }

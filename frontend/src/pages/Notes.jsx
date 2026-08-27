@@ -77,15 +77,15 @@ export default function Notes() {
 
   return (
     <div className="flex h-screen bg-paper">
-      <aside className="flex w-72 flex-col border-r border-line bg-white">
-        <div className="flex items-center justify-between border-b border-line px-4 py-3.5">
-          <span className="font-display text-lg text-ink">Notepad</span>
-          <button onClick={logout} className="text-xs text-ink-soft hover:text-accent">
-            Log out
+      <aside className="flex w-72 flex-col border-r-[3px] border-ink bg-paper">
+        <div className="flex items-center justify-between border-b-[3px] border-ink px-4 py-3.5">
+          <span className="font-display text-xs text-ink">🪶 Notepad</span>
+          <button onClick={logout} className="font-display text-[0.5rem] text-ink-soft hover:text-accent">
+            LOG OUT
           </button>
         </div>
 
-        <div className="border-b border-line px-4 py-2 text-xs text-ink-soft">
+        <div className="border-b-[3px] border-ink px-4 py-2 text-sm text-ink-soft">
           hey, {user?.email}
         </div>
 
@@ -94,15 +94,12 @@ export default function Notes() {
             value={search}
             onChange={handleSearch}
             placeholder="Find something…"
-            className="w-full rounded-lg border border-line bg-paper px-3 py-2 text-sm outline-none transition focus:border-accent focus:ring-2 focus:ring-accent-soft"
+            className="pixel-input w-full px-3 py-2 text-lg"
           />
         </div>
 
-        <button
-          onClick={handleNewNote}
-          className="mx-3 mb-3 rounded-full bg-ink py-2 text-sm font-medium text-paper transition hover:bg-accent"
-        >
-          + New note
+        <button onClick={handleNewNote} className="pixel-btn mx-3 mb-3 py-2">
+          + New Note
         </button>
 
         <div className="flex-1 overflow-y-auto">
@@ -110,16 +107,16 @@ export default function Notes() {
             <div
               key={note._id}
               onClick={() => setActiveId(note._id)}
-              className={`group flex cursor-pointer items-start justify-between gap-1 border-b border-line px-4 py-3 transition hover:bg-accent-soft ${
-                note._id === activeId ? "border-l-2 border-l-accent bg-accent-soft" : "border-l-2 border-l-transparent"
+              className={`group flex cursor-pointer items-start justify-between gap-1 border-b-[3px] border-ink px-4 py-3 transition hover:bg-accent-soft ${
+                note._id === activeId ? "border-l-[6px] border-l-accent bg-accent-soft" : "border-l-[6px] border-l-transparent"
               }`}
             >
               <div className="min-w-0 flex-1">
-                <p className="truncate text-sm font-medium text-ink">
+                <p className="truncate text-lg font-medium text-ink">
                   {note.pinned ? "📌 " : ""}
                   {note.title || "Untitled"}
                 </p>
-                <p className="mt-0.5 truncate text-xs text-ink-soft">{note.body || "Empty for now"}</p>
+                <p className="mt-0.5 truncate text-sm text-ink-soft">{note.body || "Empty for now"}</p>
               </div>
               <div className="shrink-0 opacity-0 transition group-hover:opacity-100">
                 <NoteMenu
@@ -132,7 +129,7 @@ export default function Notes() {
           ))}
           {notes.length === 0 && (
             <p className="px-4 py-6 text-center text-sm text-ink-soft">
-              Nothing here yet — hit “+ New note” to get going.
+              Nothing here yet — hit "+ New Note" to get going.
             </p>
           )}
         </div>
@@ -146,7 +143,7 @@ export default function Notes() {
                 value={title}
                 onChange={handleTitleChange}
                 placeholder="Give it a title"
-                className="w-full font-display text-3xl text-ink outline-none placeholder:text-ink-soft/50"
+                className="w-full font-display text-lg text-ink outline-none placeholder:text-ink-soft/50"
               />
               <NoteMenu
                 pinned={active.pinned}
@@ -158,13 +155,13 @@ export default function Notes() {
               value={body}
               onChange={handleBodyChange}
               placeholder="What's on your mind?"
-              className="h-full w-full resize-none text-[15px] leading-relaxed text-ink outline-none placeholder:text-ink-soft/50"
+              className="ruled-paper h-full w-full resize-none px-1 pt-2 font-body text-2xl leading-8 text-ink outline-none placeholder:text-ink-soft/50"
             />
           </div>
         ) : (
           <div className="flex h-full flex-col items-center justify-center gap-2 text-ink-soft">
-            <span className="text-2xl">🖊️</span>
-            <p className="text-sm">Pick a note, or start something new.</p>
+            <span className="text-3xl">🪶</span>
+            <p className="font-display text-[0.6rem]">Pick a note, or start something new.</p>
           </div>
         )}
       </main>

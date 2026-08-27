@@ -7,44 +7,37 @@ export default function Landing() {
   if (!loading && user) return <Navigate to="/notes" replace />;
 
   return (
-    <div className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden bg-paper px-4">
-      <div className="pointer-events-none absolute inset-0 [background-image:radial-gradient(var(--color-line)_1px,transparent_1px)] [background-size:24px_24px] opacity-40" />
-
-      <div className="relative flex flex-col items-center text-center">
+    <div className="flex min-h-screen flex-col items-center justify-center px-4">
+      <div className="pixel-panel flex max-w-md flex-col items-center px-8 py-10 text-center">
         <div
           aria-hidden
-          className="mb-8 flex h-14 w-14 -rotate-6 items-center justify-center rounded-xl border border-line bg-white text-xl shadow-sm"
+          className="mb-6 flex h-16 w-16 items-center justify-center border-[3px] border-ink bg-paper-dim text-3xl"
+          style={{ borderWidth: 3 }}
         >
-          📝
+          🪶
         </div>
 
-        <p className="mb-3 text-sm font-medium tracking-wide text-ink-soft uppercase">
-          For people who write stuff down
+        <p className="mb-4 font-display text-[0.6rem] tracking-widest text-accent">
+          ◆ QUILL &amp; PARCHMENT ◆
         </p>
-        <h1 className="font-display text-6xl font-medium text-ink">Notepad</h1>
-        <p className="mt-5 max-w-md text-balance text-ink-soft">
+        <h1 className="font-display text-3xl leading-relaxed text-ink">Notepad</h1>
+        <p className="mt-5 font-body text-xl text-ink-soft">
           Jot it down, tag it, find it later. That's kind of the whole idea —
           all tucked away under your own account.
         </p>
 
-        <div className="mt-9 flex gap-3">
-          <Link
-            to="/signup"
-            className="rounded-full bg-ink px-6 py-2.5 text-sm font-medium text-paper shadow-sm transition hover:bg-accent"
-          >
-            Get started
+        <div className="mt-8 flex flex-wrap justify-center gap-3">
+          <Link to="/signup" className="pixel-btn px-6 py-3">
+            Get Started
           </Link>
-          <Link
-            to="/login"
-            className="rounded-full border border-line bg-white px-6 py-2.5 text-sm font-medium text-ink transition hover:border-ink"
-          >
-            Log in
+          <Link to="/login" className="pixel-btn pixel-btn-outline px-6 py-3">
+            Log In
           </Link>
         </div>
       </div>
 
-      <p className="relative mt-16 text-xs text-ink-soft">
-        Free forever. No credit card, no catch.
+      <p className="mt-8 font-display text-[0.55rem] text-ink-soft">
+        FREE FOREVER · NO CREDIT CARD
       </p>
     </div>
   );
