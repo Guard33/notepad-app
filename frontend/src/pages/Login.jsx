@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import QuillIcon from "../components/QuillIcon";
 
 export default function Login() {
   const { login } = useAuth();
@@ -27,8 +28,9 @@ export default function Login() {
   return (
     <div className="flex min-h-screen items-center justify-center px-4">
       <div className="w-full max-w-sm">
-        <Link to="/" className="mb-8 block text-center font-display text-lg text-ink">
-          🪶 Notepad
+        <Link to="/" className="mb-8 flex items-center justify-center gap-2 font-display text-lg text-ink">
+          <QuillIcon size={18} />
+          Notepad
         </Link>
 
         <form onSubmit={handleSubmit} className="pixel-panel space-y-4 p-7">

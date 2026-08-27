@@ -1,5 +1,6 @@
 import { Link, Navigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import QuillIcon from "../components/QuillIcon";
 
 export default function Landing() {
   const { user, loading } = useAuth();
@@ -9,17 +10,10 @@ export default function Landing() {
   return (
     <div className="flex min-h-screen flex-col items-center justify-center px-4">
       <div className="pixel-panel flex max-w-md flex-col items-center px-8 py-10 text-center">
-        <div
-          aria-hidden
-          className="mb-6 flex h-16 w-16 items-center justify-center border-[3px] border-ink bg-paper-dim text-3xl"
-          style={{ borderWidth: 3 }}
-        >
-          🪶
+        <div className="mb-6 flex h-16 w-16 items-center justify-center border-[3px] border-ink bg-paper-dim text-ink">
+          <QuillIcon size={32} />
         </div>
 
-        <p className="mb-4 font-display text-[0.6rem] tracking-widest text-accent">
-          ◆ QUILL &amp; PARCHMENT ◆
-        </p>
         <h1 className="font-display text-3xl leading-relaxed text-ink">Notepad</h1>
         <p className="mt-5 font-body text-xl text-ink-soft">
           Jot it down, tag it, find it later. That's kind of the whole idea —

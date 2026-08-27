@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import api from "../api/client";
 import { useAuth } from "../context/AuthContext";
 import NoteMenu from "../components/NoteMenu";
+import QuillIcon from "../components/QuillIcon";
 
 export default function Notes() {
   const { user, logout } = useAuth();
@@ -79,7 +80,10 @@ export default function Notes() {
     <div className="flex h-screen bg-paper">
       <aside className="flex w-72 flex-col border-r-[3px] border-ink bg-paper">
         <div className="flex items-center justify-between border-b-[3px] border-ink px-4 py-3.5">
-          <span className="font-display text-xs text-ink">🪶 Notepad</span>
+          <span className="flex items-center gap-2 font-display text-xs text-ink">
+            <QuillIcon size={16} />
+            Notepad
+          </span>
           <button onClick={logout} className="font-display text-[0.5rem] text-ink-soft hover:text-accent">
             LOG OUT
           </button>
@@ -160,7 +164,7 @@ export default function Notes() {
           </div>
         ) : (
           <div className="flex h-full flex-col items-center justify-center gap-2 text-ink-soft">
-            <span className="text-3xl">🪶</span>
+            <QuillIcon size={32} />
             <p className="font-display text-[0.6rem]">Pick a note, or start something new.</p>
           </div>
         )}
