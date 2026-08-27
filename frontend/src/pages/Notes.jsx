@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import api from "../api/client";
 import { useAuth } from "../context/AuthContext";
+import NoteMenu from "../components/NoteMenu";
 
 export default function Notes() {
   const { user, logout } = useAuth();
@@ -84,20 +85,22 @@ export default function Notes() {
           </button>
         </div>
 
-        <div className="border-b border-line px-4 py-2 text-xs text-ink-soft">{user?.email}</div>
+        <div className="border-b border-line px-4 py-2 text-xs text-ink-soft">
+          hey, {user?.email}
+        </div>
 
         <div className="p-3">
           <input
             value={search}
             onChange={handleSearch}
-            placeholder="Search notes…"
+            placeholder="Find something…"
             className="w-full rounded-lg border border-line bg-paper px-3 py-2 text-sm outline-none transition focus:border-accent focus:ring-2 focus:ring-accent-soft"
           />
         </div>
 
         <button
           onClick={handleNewNote}
-          className="mx-3 mb-3 rounded-lg bg-ink py-2 text-sm font-medium text-paper transition hover:bg-accent"
+          className="mx-3 mb-3 rounded-full bg-ink py-2 text-sm font-medium text-paper transition hover:bg-accent"
         >
           + New note
         </button>
@@ -107,19 +110,30 @@ export default function Notes() {
             <div
               key={note._id}
               onClick={() => setActiveId(note._id)}
-              className={`cursor-pointer border-b border-line px-4 py-3 transition hover:bg-accent-soft ${
+              className={`group flex cursor-pointer items-start justify-between gap-1 border-b border-line px-4 py-3 transition hover:bg-accent-soft ${
                 note._id === activeId ? "border-l-2 border-l-accent bg-accent-soft" : "border-l-2 border-l-transparent"
               }`}
             >
-              <p className="truncate text-sm font-medium text-ink">
-                {note.pinned ? "📌 " : ""}
-                {note.title || "Untitled"}
-              </p>
-              <p className="mt-0.5 truncate text-xs text-ink-soft">{note.body || "No content"}</p>
+              <div className="min-w-0 flex-1">
+                <p className="truncate text-sm font-medium text-ink">
+                  {note.pinned ? "📌 " : ""}
+                  {note.title || "Untitled"}
+                </p>
+                <p className="mt-0.5 truncate text-xs text-ink-soft">{note.body || "Empty for now"}</p>
+              </div>
+              <div className="shrink-0 opacity-0 transition group-hover:opacity-100">
+                <NoteMenu
+                  pinned={note.pinned}
+                  onTogglePin={() => togglePin(note)}
+                  onDelete={() => trashNote(note)}
+                />
+              </div>
             </div>
           ))}
           {notes.length === 0 && (
-            <p className="px-4 py-6 text-center text-sm text-ink-soft">No notes yet.</p>
+            <p className="px-4 py-6 text-center text-sm text-ink-soft">
+              Nothing here yet — hit “+ New note” to get going.
+            </p>
           )}
         </div>
       </aside>
@@ -131,35 +145,26 @@ export default function Notes() {
               <input
                 value={title}
                 onChange={handleTitleChange}
-                placeholder="Title"
+                placeholder="Give it a title"
                 className="w-full font-display text-3xl text-ink outline-none placeholder:text-ink-soft/50"
               />
-              <div className="flex shrink-0 gap-2">
-                <button
-                  onClick={() => togglePin(active)}
-                  className="rounded-full border border-line px-3.5 py-1.5 text-xs font-medium text-ink transition hover:border-accent hover:text-accent"
-                >
-                  {active.pinned ? "Unpin" : "Pin"}
-                </button>
-                <button
-                  onClick={() => trashNote(active)}
-                  className="rounded-full border border-line px-3.5 py-1.5 text-xs font-medium text-ink-soft transition hover:border-red-300 hover:text-red-600"
-                >
-                  Delete
-                </button>
-              </div>
+              <NoteMenu
+                pinned={active.pinned}
+                onTogglePin={() => togglePin(active)}
+                onDelete={() => trashNote(active)}
+              />
             </div>
             <textarea
               value={body}
               onChange={handleBodyChange}
-              placeholder="Start writing…"
+              placeholder="What's on your mind?"
               className="h-full w-full resize-none text-[15px] leading-relaxed text-ink outline-none placeholder:text-ink-soft/50"
             />
           </div>
         ) : (
           <div className="flex h-full flex-col items-center justify-center gap-2 text-ink-soft">
             <span className="text-2xl">🖊️</span>
-            <p className="text-sm">Select a note, or create a new one.</p>
+            <p className="text-sm">Pick a note, or start something new.</p>
           </div>
         )}
       </main>

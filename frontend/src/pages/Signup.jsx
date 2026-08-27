@@ -36,8 +36,8 @@ export default function Signup() {
           className="space-y-4 rounded-2xl border border-line bg-white p-7 shadow-sm"
         >
           <div>
-            <h1 className="font-display text-xl text-ink">Create your account</h1>
-            <p className="mt-1 text-sm text-ink-soft">Takes about ten seconds.</p>
+            <h1 className="font-display text-xl text-ink">Let's get you set up</h1>
+            <p className="mt-1 text-sm text-ink-soft">Takes about ten seconds, promise.</p>
           </div>
 
           {error && (
@@ -69,7 +69,7 @@ export default function Signup() {
             disabled={submitting}
             className="w-full rounded-lg bg-ink py-2.5 text-sm font-medium text-paper transition hover:bg-accent disabled:opacity-60"
           >
-            {submitting ? "Creating account…" : "Sign up"}
+            {submitting ? "One sec…" : "Sign up"}
           </button>
 
           <p className="text-center text-sm text-ink-soft">

@@ -36,8 +36,8 @@ export default function Login() {
           className="space-y-4 rounded-2xl border border-line bg-white p-7 shadow-sm"
         >
           <div>
-            <h1 className="font-display text-xl text-ink">Welcome back</h1>
-            <p className="mt-1 text-sm text-ink-soft">Log in to your notes.</p>
+            <h1 className="font-display text-xl text-ink">Hey, welcome back</h1>
+            <p className="mt-1 text-sm text-ink-soft">Good to see you again.</p>
           </div>
 
           {error && (
@@ -68,7 +68,7 @@ export default function Login() {
             disabled={submitting}
             className="w-full rounded-lg bg-ink py-2.5 text-sm font-medium text-paper transition hover:bg-accent disabled:opacity-60"
           >
-            {submitting ? "Logging in…" : "Log in"}
+            {submitting ? "One sec…" : "Log in"}
           </button>
 
           <p className="text-center text-sm text-ink-soft">

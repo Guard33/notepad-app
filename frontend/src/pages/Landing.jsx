@@ -19,12 +19,12 @@ export default function Landing() {
         </div>
 
         <p className="mb-3 text-sm font-medium tracking-wide text-ink-soft uppercase">
-          Your notes, wherever you go
+          For people who write stuff down
         </p>
         <h1 className="font-display text-6xl font-medium text-ink">Notepad</h1>
         <p className="mt-5 max-w-md text-balance text-ink-soft">
-          A quiet place to write things down. Tag it, search it, find it again —
-          all tied to your account.
+          Jot it down, tag it, find it later. That's kind of the whole idea —
+          all tucked away under your own account.
         </p>
 
         <div className="mt-9 flex gap-3">
@@ -44,7 +44,7 @@ export default function Landing() {
       </div>
 
       <p className="relative mt-16 text-xs text-ink-soft">
-        Free to use. No credit card required.
+        Free forever. No credit card, no catch.
       </p>
     </div>
   );
