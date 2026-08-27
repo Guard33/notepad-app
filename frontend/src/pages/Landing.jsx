@@ -31,7 +31,7 @@ export default function Landing() {
       </div>
 
       <p className="mt-8 font-display text-[0.55rem] text-ink-soft">
-        FREE FOREVER · NO CREDIT CARD
+        FREE FOREVER
       </p>
     </div>
   );
