@@ -2,10 +2,17 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import User from "../models/User.js";
 
+const isProd = process.env.NODE_ENV === "production";
+
+// In prod, frontend (Vercel) and backend (Render) live on different domains,
+// so the auth cookie has to be sent cross-site. That requires SameSite=None,
+// which browsers only allow when the cookie is also marked Secure (HTTPS).
+// Locally, the Vite dev server proxies /api same-origin, so Lax is fine and
+// avoids needing HTTPS on localhost.
 const COOKIE_OPTIONS = {
   httpOnly: true,
-  secure: process.env.NODE_ENV === "production",
-  sameSite: "lax",
+  secure: isProd,
+  sameSite: isProd ? "none" : "lax",
   maxAge: 7 * 24 * 60 * 60 * 1000,
 };
 
