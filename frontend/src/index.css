@@ -77,4 +77,35 @@ body {
     background-attachment: local;
     opacity: 0.92;
   }
+
+  .pixel-tab {
+    border: 3px solid var(--color-ink);
+    background-color: var(--color-paper-dim);
+    color: var(--color-ink);
+    font-family: var(--font-display);
+    font-size: 0.55rem;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    padding: 0.4rem 0.5rem;
+  }
+  .pixel-tab.active {
+    background-color: var(--color-accent);
+    color: var(--color-paper);
+  }
+
+  .pixel-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    border: 2px solid var(--color-ink);
+    background-color: var(--color-paper-dim);
+    color: var(--color-ink);
+    font-family: var(--font-body);
+    font-size: 1rem;
+    line-height: 1;
+    padding: 0.2rem 0.5rem;
+  }
+  .pixel-chip.active {
+    background-color: var(--color-accent-soft);
+  }
 }
