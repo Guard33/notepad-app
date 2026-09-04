@@ -161,11 +161,11 @@ export default function Notes() {
     <div className="flex h-screen bg-paper">
       <aside className="flex w-72 flex-col border-r-[3px] border-ink bg-paper">
         <div className="flex items-center justify-between border-b-[3px] border-ink px-4 py-3.5">
-          <span className="flex items-center gap-2 font-display text-xs text-ink">
+          <span className="flex items-center gap-2 text-pixel-md text-ink">
             <QuillIcon size={16} />
             Notepad
           </span>
-          <button onClick={logout} className="font-display text-[0.5rem] text-ink-soft hover:text-accent">
+          <button onClick={logout} className="text-pixel-xs text-ink-soft transition-colors hover:text-accent">
             LOG OUT
           </button>
         </div>
@@ -231,7 +231,7 @@ export default function Notes() {
                 </p>
                 <p className="mt-0.5 truncate text-sm text-ink-soft">{note.body || "Empty for now"}</p>
               </div>
-              <div className="shrink-0 opacity-0 transition group-hover:opacity-100">
+              <div className="shrink-0 opacity-0 transition group-hover:opacity-100 group-focus-within:opacity-100">
                 <NoteMenu items={menuItemsFor(note)} />
               </div>
             </div>
@@ -257,7 +257,7 @@ export default function Notes() {
                 onChange={handleTitleChange}
                 placeholder="Give it a title"
                 readOnly={isTrash}
-                className="w-full font-display text-lg text-ink outline-none placeholder:text-ink-soft/50"
+                className="w-full text-pixel-lg text-ink outline-none placeholder:text-ink-soft/50"
               />
               <NoteMenu items={menuItemsFor(active)} />
             </div>
@@ -301,7 +301,7 @@ export default function Notes() {
         ) : (
           <div className="flex h-full flex-col items-center justify-center gap-2 text-ink-soft">
             <QuillIcon size={32} />
-            <p className="font-display text-[0.6rem]">Pick a note, or start something new.</p>
+            <p className="text-pixel-sm">Pick a note, or start something new.</p>
           </div>
         )}
       </main>

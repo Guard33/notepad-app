@@ -24,10 +24,51 @@ body {
   color: var(--color-ink);
 }
 
+/* Consistent pixel-label type scale — replaces one-off arbitrary sizes.
+   Letter-spacing is left to the caller (tracking-wide / tracking-widest)
+   since eyebrow labels and buttons want different amounts of it. */
+@utility text-pixel-xs {
+  font-family: var(--font-display);
+  font-size: 0.5rem;
+  line-height: 1.6;
+}
+@utility text-pixel-sm {
+  font-family: var(--font-display);
+  font-size: 0.6rem;
+  line-height: 1.6;
+}
+@utility text-pixel-md {
+  font-family: var(--font-display);
+  font-size: 0.75rem;
+  line-height: 1.6;
+}
+@utility text-pixel-lg {
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  line-height: 1.6;
+}
+
+/* Visible keyboard focus on every pixel-styled interactive element */
+.pixel-btn:focus-visible,
+.pixel-tab:focus-visible,
+.pixel-chip:focus-visible,
+.pixel-input:focus-visible,
+a:focus-visible,
+button:focus-visible {
+  outline: 3px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
 @layer components {
   .pixel-panel {
     border: 3px solid var(--color-ink);
     box-shadow: 6px 6px 0 var(--color-ink);
+    background-color: var(--color-paper);
+  }
+
+  .pixel-panel-sm {
+    border: 2px solid var(--color-ink);
+    box-shadow: 3px 3px 0 var(--color-ink);
     background-color: var(--color-paper);
   }
 
@@ -38,12 +79,13 @@ body {
     color: var(--color-paper);
     font-family: var(--font-display);
     font-size: 0.65rem;
+    line-height: 1.6;
     letter-spacing: 0.5px;
     text-transform: uppercase;
-    transition: transform 0.05s ease, box-shadow 0.05s ease;
+    transition: transform 0.08s ease, box-shadow 0.08s ease, filter 0.15s ease;
   }
   .pixel-btn:hover {
-    filter: brightness(1.1);
+    filter: brightness(1.08);
   }
   .pixel-btn:active {
     transform: translate(4px, 4px);
@@ -61,6 +103,7 @@ body {
     box-shadow: inset 3px 3px 0 rgba(43, 29, 14, 0.15);
     font-family: var(--font-body);
     color: var(--color-ink);
+    transition: box-shadow 0.15s ease;
   }
   .pixel-input:focus {
     outline: none;
@@ -87,6 +130,10 @@ body {
     letter-spacing: 0.5px;
     text-transform: uppercase;
     padding: 0.4rem 0.5rem;
+    transition: background-color 0.15s ease, color 0.15s ease;
+  }
+  .pixel-tab:hover:not(.active) {
+    background-color: var(--color-accent-soft);
   }
   .pixel-tab.active {
     background-color: var(--color-accent);
@@ -104,6 +151,10 @@ body {
     font-size: 1rem;
     line-height: 1;
     padding: 0.2rem 0.5rem;
+    transition: background-color 0.15s ease;
+  }
+  .pixel-chip:hover {
+    background-color: var(--color-accent-soft);
   }
   .pixel-chip.active {
     background-color: var(--color-accent-soft);

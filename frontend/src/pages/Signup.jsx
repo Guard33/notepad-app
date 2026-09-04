@@ -28,20 +28,20 @@ export default function Signup() {
   return (
     <div className="flex min-h-screen items-center justify-center px-4">
       <div className="w-full max-w-sm">
-        <Link to="/" className="mb-8 flex items-center justify-center gap-2 font-display text-lg text-ink">
+        <Link to="/" className="mb-8 flex items-center justify-center gap-2 font-display text-lg leading-relaxed text-ink">
           <QuillIcon size={18} />
           Notepad
         </Link>
 
         <form onSubmit={handleSubmit} className="pixel-panel space-y-4 p-7">
           <div>
-            <p className="font-display text-[0.55rem] tracking-widest text-accent">◆ NEW SCROLL ◆</p>
+            <p className="text-pixel-xs tracking-widest text-accent">◆ NEW SCROLL ◆</p>
             <h1 className="mt-2 font-body text-2xl text-ink">Let's get you set up</h1>
             <p className="text-sm text-ink-soft">Takes about ten seconds, promise.</p>
           </div>
 
           {error && (
-            <p className="border-[3px] border-accent bg-paper-dim px-3 py-2 text-sm text-accent">
+            <p className="border-2 border-accent bg-paper-dim px-3 py-2 text-sm text-accent">
               {error}
             </p>
           )}

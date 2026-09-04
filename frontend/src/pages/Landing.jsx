@@ -30,7 +30,7 @@ export default function Landing() {
         </div>
       </div>
 
-      <p className="mt-8 font-display text-[0.55rem] text-ink-soft">
+      <p className="mt-8 text-pixel-xs text-ink-soft">
         FREE FOREVER
       </p>
     </div>
