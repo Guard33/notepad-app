@@ -1,6 +1,10 @@
 # Notepad App
 
-Full-stack notepad: React + Express + MongoDB. Authenticated users create, edit, tag, search, pin, archive, and trash their own notes.
+**Live:** https://notepad-app-brown.vercel.app
+
+Full-stack notepad: React + Express + MongoDB. Sign up, then write, tag, search, pin, archive, and trash/restore your own notes — all scoped to your account.
+
+> The backend runs on Render's free tier, which sleeps after 15 minutes idle. If the app hasn't been visited recently, the first request can take 30-60 seconds to wake it up before it responds — that's expected, not a bug.
 
 ## Structure
 
@@ -37,8 +41,10 @@ Runs on http://localhost:5173, proxies `/api` requests to the backend during dev
 
 ## Deploy
 
-- **Frontend → Vercel**: import the repo, set root directory to `frontend`, framework preset "Vite". Add env var `VITE_API_URL` pointing at the deployed Render backend (e.g. `https://your-api.onrender.com/api`).
-- **Backend → Render**: new Web Service, root directory `backend`, build command `npm install`, start command `npm start`. Add env vars `MONGODB_URI`, `JWT_SECRET`, `CLIENT_ORIGIN` (your Vercel URL), `NODE_ENV=production`.
+Currently deployed as:
+
+- **Frontend → Vercel**: root directory `frontend`, framework preset "Vite". Env var `VITE_API_URL` points at the Render backend (`https://<render-app>.onrender.com/api`).
+- **Backend → Render**: root directory `backend`, build command `npm install`, start command `npm start`. Env vars: `MONGODB_URI`, `JWT_SECRET`, `CLIENT_ORIGIN` (the Vercel URL), `NODE_ENV=production`.
 - **Database → MongoDB Atlas**: free M0 cluster, used by the Render backend via `MONGODB_URI`.
 
-Render's free tier spins down after 15 minutes idle — first request after a gap takes ~30-60s to wake up.
+To fork and redeploy your own copy, follow the same setup — new Vercel project, new Render web service, new Atlas cluster, wiring the env vars above between them.
