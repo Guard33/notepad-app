@@ -3,6 +3,7 @@ import api from "../api/client";
 import { useAuth } from "../context/AuthContext";
 import NoteMenu from "../components/NoteMenu";
 import QuillIcon from "../components/QuillIcon";
+import { getSuggestion } from "../lib/prompts";
 
 const VIEWS = [
   { key: "active", label: "Notes" },
@@ -22,6 +23,7 @@ export default function Notes() {
   const [body, setBody] = useState("");
   const [tags, setTags] = useState([]);
   const [tagDraft, setTagDraft] = useState("");
+  const [suggestion, setSuggestion] = useState(null);
   const saveTimer = useRef(null);
 
   const active = notes.find((n) => n._id === activeId) || null;
@@ -59,7 +61,12 @@ export default function Notes() {
       setTags([]);
     }
     setTagDraft("");
+    setSuggestion(null);
   }, [activeId]);
+
+  function suggestPrompt() {
+    setSuggestion(getSuggestion(tags, suggestion));
+  }
 
   async function handleNewNote() {
     const res = await api.post("/notes", { title: "Untitled", body: "" });
@@ -290,10 +297,19 @@ export default function Notes() {
               )}
             </div>
 
+            {!isTrash && !body.trim() && (
+              <button
+                onClick={suggestPrompt}
+                className="pixel-btn pixel-btn-outline self-start px-3 py-1.5"
+              >
+                ✦ Need an idea?
+              </button>
+            )}
+
             <textarea
               value={body}
               onChange={handleBodyChange}
-              placeholder="What's on your mind?"
+              placeholder={!body.trim() && suggestion ? suggestion : "What's on your mind?"}
               readOnly={isTrash}
               className="ruled-paper h-full w-full resize-none px-1 pt-2 font-body text-2xl leading-8 text-ink outline-none placeholder:text-ink-soft/50"
             />
