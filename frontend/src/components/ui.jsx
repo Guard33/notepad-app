@@ -3,10 +3,9 @@ import { useEffect, useRef } from "react";
 export function Logo({ size = 28 }) {
   return (
     <svg width={size} height={size} viewBox="0 0 32 32" aria-hidden="true">
-      <rect width="32" height="32" rx="7" fill="#1f3a5f" />
-      <path d="M4 18c3-3 5-3 8 0s5 3 8 0 5-3 8 0v10H4z" fill="#8da9c4" />
-      <path d="M4 23c3-3 5-3 8 0s5 3 8 0 5-3 8 0v5H4z" fill="#eef4ed" />
-      <circle cx="21" cy="10" r="4" fill="#fca311" />
+      <rect width="32" height="32" rx="8" fill="#1f3a5f" />
+      <path d="M4 12.5c3-3.2 6-3.2 8 0s5 3.2 8 0 5-3.2 8 0" fill="none" stroke="#8da9c4" strokeWidth="3.2" strokeLinecap="round" />
+      <path d="M4 20.5c3-3.2 6-3.2 8 0s5 3.2 8 0 5-3.2 8 0" fill="none" stroke="#fff" strokeWidth="3.2" strokeLinecap="round" />
     </svg>
   );
 }
