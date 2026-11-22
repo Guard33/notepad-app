@@ -26,9 +26,41 @@ const CATALOG = [
   ["Cape Breton Highlands", "Contours", "contours", 3, ["#f1faee", "#a8dadc", "#457b9d", "#1d3557", "#e63946"], "Contour lines in the style of an old survey map.", [24, 13, 7], true],
   ["Sable Island", "Contours", "contours", 31, ["#fbf8f3", "#c9ada7", "#9a8c98", "#4a4e69", "#22223b"], "Shifting dunes, drawn as rings of muted violet.", [16, 4, 8]],
   ["Bay of Fundy", "Contours", "contours", 47, ["#0d1b2a", "#1b263b", "#415a77", "#778da9", "#e0e1dd"], "The world's biggest tides, mapped in midnight blue.", [19, 10, 3]],
+
+  // Added November 2026. Palettes per style:
+  //   waves / bauhaus / contours: [background, ...inks]
+  //   sun: [sky top, sky bottom, sun, sea, hills]
+
+  // Bauhaus
+  ["Halifax Grid", "Bauhaus", "bauhaus", 61, ["#f4f1de", "#e07a5f", "#3d405b", "#81b29a", "#f2cc8f"], "Terracotta, slate and sage, set out on a strict grid.", [28, 15, 8]],
+  ["Modern Harbour", "Bauhaus", "bauhaus", 74, ["#edf2f4", "#2b2d42", "#ef233c", "#8d99ae", "#ffb703"], "Signal red and marigold against harbour greys.", [22, 12, 2]],
+  ["Weimar Blue", "Bauhaus", "bauhaus", 88, ["#f1faee", "#1d3557", "#457b9d", "#e63946", "#a8dadc"], "Three blues and one red, the way the school intended.", [26, 9, 6]],
+  ["Saltbox", "Bauhaus", "bauhaus", 95, ["#fefae0", "#bc6c25", "#283618", "#dda15e", "#606c38"], "Rust and moss, like painted clapboard after a long winter.", [14, 6, 0]],
+  ["Night Shift", "Bauhaus", "bauhaus", 103, ["#1b1b2f", "#e43f5a", "#f4a261", "#2a9d8f", "#e9c46a"], "Bright shapes on a near-black ground, for darker walls.", [18, 3, 5]],
+
+  // Contours
+  ["Kejimkujik", "Contours", "contours", 112, ["#f4f3ee", "#8a9a5b", "#5a6b3b", "#2f3e1f", "#d97706"], "Old-growth forest contours with one line of autumn orange.", [21, 11, 6]],
+  ["Gros Morne", "Contours", "contours", 127, ["#eae2b7", "#d4a373", "#8d6e4c", "#5c4033", "#003049"], "Tableland ridges in sandstone, with a single deep-blue fjord line.", [17, 8, 2]],
+  ["Minas Basin", "Contours", "contours", 139, ["#e9f5f9", "#90c2d9", "#4f8db3", "#1e4f73", "#f77f00"], "Tidal flats drawn in cool blues, one ring catching the sun.", [24, 13, 7]],
+
+  // Sunsets
+  ["Lunenburg Red", "Sunsets", "sun", 151, ["#2b2d42", "#ef8354", "#ffd166", "#8d99ae", "#1b1b2f"], "A hot orange evening over the old town waterfront.", [25, 14, 6]],
+  ["Cabot Trail Dusk", "Sunsets", "sun", 163, ["#3d405b", "#e07a5f", "#f2cc8f", "#81b29a", "#2b2d42"], "The last light along the highland coast road.", [20, 10, 4]],
+  ["Lighthouse Hour", "Sunsets", "sun", 177, ["#03045e", "#0077b6", "#ffb703", "#023e8a", "#011627"], "Deep blue sky, a gold sun, the minute before the lamp comes on.", [30, 16, 9]],
+  ["Grand Pré", "Sunsets", "sun", 189, ["#5f0f40", "#fb8b24", "#ffd60a", "#9a031e", "#2d0b1f"], "Plum and ember over the dyked farmland.", [16, 7, 1]],
+  ["Salt Marsh", "Sunsets", "sun", 201, ["#606c38", "#dda15e", "#fefae0", "#283618", "#1c2410"], "A pale sun sinking into marsh grass and still water.", [19, 9, 5]],
+  ["Mahone Bay", "Sunsets", "sun", 214, ["#22223b", "#c9ada7", "#f2e9e4", "#4a4e69", "#16162a"], "Dusty rose and violet, quiet as the three churches.", [23, 12, 3]],
+  ["Hopewell Rocks", "Sunsets", "sun", 226, ["#7f5539", "#ddb892", "#ede0d4", "#9c6644", "#3b2416"], "Sandstone light on the flowerpot rocks at low tide.", [15, 2, 4]],
+  ["Indigo Evening", "Sunsets", "sun", 238, ["#10002b", "#5a189a", "#ff9e00", "#3c096c", "#0b0019"], "A violet sky with an orange sun holding on.", [22, 11, 7]],
+  ["Cape Split", "Sunsets", "sun", 251, ["#355070", "#eaac8b", "#ffcdb2", "#6d597a", "#1f2d42"], "Peach and slate blue at the end of the long trail.", [18, 8, 0]],
+
+  // Tides
+  ["Cobequid Swell", "Tides", "waves", 263, ["#e8f1f2", "#a5c9ca", "#5b8fa8", "#2c5d7c", "#123047"], "Layered swells in five shades of bay water.", [27, 14, 8]],
+  ["Sea Glass", "Tides", "waves", 277, ["#0b3c49", "#2e8b80", "#7fc8a9", "#c7e8dd", "#f4f9f4"], "Frosted greens tumbling over a deep teal ground.", [20, 3, 6]],
 ];
 
-const slugify = (s) => s.toLowerCase().replace(/['’]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+// NFD splits "é" into "e" + a combining accent (U+0300–U+036F), which we drop.
+const slugify = (s) => s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().replace(/['’]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 
 export const catalogProducts = () =>
   CATALOG.map(([name, collectionName, style, seed, palette, tagline, stock, featured = false]) => ({
@@ -109,14 +141,18 @@ async function seedSampleOrders(products) {
   await Order.insertMany(orders, { timestamps: false });
 }
 
-// Called on server start: fills an empty database so a fresh deploy (or a
-// teammate's local setup) works with no manual seeding step. Products and
-// sample orders are checked separately, so if a deploy is stopped halfway
-// through seeding, the next start finishes the job instead of skipping it.
+// Called on server start. Adds any catalog poster whose slug isn't in the
+// database yet, so a fresh deploy gets the full catalog and posters added
+// to CATALOG later appear on the next deploy. Existing products are never
+// touched, so stock and price edits made in the admin are kept. Products
+// and sample orders are checked separately, so if a deploy is stopped
+// halfway through seeding, the next start finishes the job.
 export async function seedCatalogIfEmpty() {
-  if (!(await Product.estimatedDocumentCount())) {
-    const inserted = await Product.insertMany(catalogProducts());
-    console.log(`Seeded ${inserted.length} products`);
+  const existing = new Set(await Product.distinct("slug"));
+  const missing = catalogProducts().filter((p) => !existing.has(p.slug));
+  if (missing.length) {
+    await Product.insertMany(missing, { ordered: false });
+    console.log(`Added ${missing.length} catalog products`);
   }
   if (process.env.SEED_SAMPLE_ORDERS !== "false" && !(await Order.exists({ sample: true }))) {
     await seedSampleOrders(await Product.find({ active: true }).lean());

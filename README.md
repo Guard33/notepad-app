@@ -13,7 +13,7 @@ A full-stack e-commerce store for generative art posters: catalog, cart, checkou
 ## Features
 
 **Storefront**
-- 12 posters in 4 collections, each **generated in code** from a seed and a palette and rendered as SVG. No image files.
+- 31 posters in 4 collections (Bauhaus, Contours, Sunsets, Tides), each **generated in code** from a seed and a palette and rendered as SVG. No image files.
 - Search, collection filters, and sorting, all kept in the URL so filtered views can be shared.
 - Product pages with A4 / A3 / A2 sizes, per-size price and stock, "only 2 left" and sold-out states.
 - Cart that works for guests (saved in the browser), with live server-side pricing.
@@ -75,7 +75,7 @@ flowchart LR
 
 **The demo can't break the shop for everyone else.** Each visitor gets a private throwaway account, seeded with two past orders. Demo orders check stock but don't consume it, so visitors can't empty the shop. Demo accounts can browse the admin dashboard, but every admin write is refused. MongoDB TTL indexes delete demo users and orders after 24 hours, and **Exit demo** deletes them immediately. Demo creation is rate limited per IP.
 
-**A fresh database is never empty.** On startup, if there are no products, the server seeds the catalog plus ~30 sample orders spread over three weeks, so the dashboard has something to show. Sample orders are flagged and labelled in the admin. Set `SEED_SAMPLE_ORDERS=false` to skip them.
+**The catalog lives in code and syncs itself.** On startup the server adds any catalog poster that isn't in the database yet (matched by slug), so a fresh database gets the whole catalog and newly added posters go live on the next deploy. Existing products are never overwritten, so stock and price edits made in the admin are kept. A fresh database also gets ~30 sample orders spread over three weeks, so the dashboard has something to show. Sample orders are flagged and labelled in the admin. Set `SEED_SAMPLE_ORDERS=false` to skip them.
 
 **Auth.** JWTs live in an httpOnly cookie, so page scripts can't read them. In production the frontend and API are on different domains, so the cookie is `SameSite=None; Secure`. Locally, Vite proxies `/api` and `Lax` works without HTTPS. CORS allows exactly one origin.
 
