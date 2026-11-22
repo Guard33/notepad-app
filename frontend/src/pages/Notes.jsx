@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import api from "../api/client";
 import { useAuth } from "../context/AuthContext";
 import NoteMenu from "../components/NoteMenu";
@@ -13,6 +14,7 @@ const VIEWS = [
 
 export default function Notes() {
   const { user, logout } = useAuth();
+  const navigate = useNavigate();
   const [view, setView] = useState("active");
   const [notes, setNotes] = useState([]);
   const [activeId, setActiveId] = useState(null);
@@ -25,6 +27,7 @@ export default function Notes() {
   const [tagDraft, setTagDraft] = useState("");
   const [suggestion, setSuggestion] = useState(null);
   const saveTimer = useRef(null);
+  const demoAutoOpened = useRef(false);
 
   const active = notes.find((n) => n._id === activeId) || null;
   const isTrash = view === "trash";
@@ -38,6 +41,11 @@ export default function Notes() {
     if (tagFilter) params.tag = tagFilter;
     const res = await api.get("/notes", { params });
     setNotes(res.data);
+    // Demo visitors land on the pinned welcome note instead of an empty editor.
+    if (user?.isDemo && !demoAutoOpened.current && view === "active" && res.data.length > 0) {
+      demoAutoOpened.current = true;
+      setActiveId(res.data[0]._id);
+    }
   }
 
   useEffect(() => {
@@ -144,6 +152,12 @@ export default function Notes() {
     if (activeId === note._id) setActiveId(null);
   }
 
+  // Leaving the demo wipes it server-side, then lands on sign-up.
+  async function leaveDemoToSignup() {
+    await logout();
+    navigate("/signup");
+  }
+
   function menuItemsFor(note) {
     if (view === "trash") {
       return [
@@ -173,13 +187,26 @@ export default function Notes() {
             Notepad
           </span>
           <button onClick={logout} className="text-pixel-xs text-ink-soft transition-colors hover:text-accent">
-            LOG OUT
+            {user?.isDemo ? "EXIT DEMO" : "LOG OUT"}
           </button>
         </div>
 
-        <div className="border-b-[3px] border-ink px-4 py-2 text-sm text-ink-soft">
-          hey, {user?.email}
-        </div>
+        {user?.isDemo ? (
+          <div className="border-b-[3px] border-ink bg-accent-soft px-4 py-2.5 text-sm text-ink">
+            <p className="text-pixel-xs tracking-widest text-accent">◆ DEMO MODE ◆</p>
+            <p className="mt-1">
+              A private sandbox, wiped within 24h.{" "}
+              <button onClick={leaveDemoToSignup} className="font-medium text-accent underline">
+                Sign up
+              </button>{" "}
+              to keep your notes.
+            </p>
+          </div>
+        ) : (
+          <div className="border-b-[3px] border-ink px-4 py-2 text-sm text-ink-soft">
+            hey, {user?.email}
+          </div>
+        )}
 
         <div className="flex gap-1.5 p-3 pb-0">
           {VIEWS.map((v) => (

@@ -8,6 +8,9 @@ import noteRoutes from "./routes/noteRoutes.js";
 
 const app = express();
 
+// Render sits behind a proxy; trust it so rate limiting sees real client IPs.
+app.set("trust proxy", 1);
+
 app.use(cors({ origin: process.env.CLIENT_ORIGIN, credentials: true }));
 app.use(express.json());
 app.use(cookieParser());

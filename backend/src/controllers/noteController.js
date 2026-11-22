@@ -19,7 +19,14 @@ export async function listNotes(req, res) {
 
 export async function createNote(req, res) {
   const { title, body, tags } = req.body;
-  const note = await Note.create({ userId: req.userId, title, body, tags });
+  const note = await Note.create({
+    userId: req.userId,
+    title,
+    body,
+    tags,
+    // Notes made in a demo session expire with the demo account.
+    expiresAt: req.demoExpiresAt,
+  });
   res.status(201).json(note);
 }
 
