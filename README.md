@@ -2,7 +2,7 @@
 
 A full-stack e-commerce store for generative art posters: catalog, cart, checkout with Canadian tax, order history, and an admin dashboard for stock, orders and sales. React + Express + MongoDB.
 
-**Live:** https://notepad-app-brown.vercel.app. Click **Try a demo account** to shop, check out and look around the admin dashboard, no sign-up needed.
+**Live:** https://tidewater-prints.vercel.app. Click **Try a demo account** to shop, check out and look around the admin dashboard, no sign-up needed.
 
 > Portfolio project: no payment is taken and nothing ships. Everything else (pricing, stock, orders, admin) is real.
 
