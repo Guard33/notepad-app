@@ -1,111 +1,112 @@
-# Notepad App
+# Tidewater Prints
 
-**Live:** https://notepad-app-brown.vercel.app. Click **Try the Demo** to get a private sandbox account with sample notes, no sign-up needed.
+A full-stack e-commerce store for generative art posters: catalog, cart, checkout with Canadian tax, order history, and an admin dashboard for stock, orders and sales. React + Express + MongoDB.
 
-Full-stack notepad: React + Express + MongoDB. Sign up, then write, tag, search, pin, archive, and trash/restore your own notes, all scoped to your account.
+**Live:** https://notepad-app-brown.vercel.app. Click **Try a demo account** to shop, check out and look around the admin dashboard, no sign-up needed.
 
-![Demo: one-click demo account, tag filter, full-text search, autosave](docs/demo.gif)
+> Portfolio project: no payment is taken and nothing ships. Everything else (pricing, stock, orders, admin) is real.
 
-> The backend runs on Render's free tier, which sleeps after 15 minutes idle. If the app hasn't been visited recently, the first request can take 30-60 seconds to wake it up. The demo button says so if it's taking a while.
+![Demo: one-click demo account, add to cart, checkout, order confirmation, admin dashboard](docs/demo.gif)
+
+> The backend runs on Render's free tier, which sleeps after 15 minutes idle. The first request after that can take 30-60 seconds; the demo button says so while it waits.
 
 ## Features
 
-- **Accounts:** email + password sign-up, sessions in an httpOnly cookie
-- **One-click demo:** a throwaway account per visitor, seeded with sample notes and deleted automatically after 24 hours
-- **Notes:** autosave while typing, pin to top, tags with sidebar filtering
-- **Full-text search** across titles and bodies (MongoDB text index)
-- **Archive and Trash:** soft delete with restore, or delete forever
-- **Writing prompts:** "Need an idea?" suggests a prompt matched to the note's tags
+**Storefront**
+- 12 posters in 4 collections, each **generated in code** from a seed and a palette and rendered as SVG. No image files.
+- Search, collection filters, and sorting, all kept in the URL so filtered views can be shared.
+- Product pages with A4 / A3 / A2 sizes, per-size price and stock, "only 2 left" and sold-out states.
+- Cart that works for guests (saved in the browser), with live server-side pricing.
+- Checkout with Canadian postal-code validation, **tax by province** (GST / HST / PST / QST) and free shipping over $75.
+- Order confirmation and order history.
+
+**Admin** (role-based)
+- Dashboard: 30-day revenue, orders, average order value, a 14-day revenue chart, top sellers, low-stock alerts, recent orders.
+- Products: edit stock and prices inline, list/unlist, feature; create new posters with a **live generative preview**.
+- Orders: filter by status, mark shipped, cancel (which puts the stock back).
+
+**One-click demo**: a private throwaway account with order history that can shop for real and view the admin dashboard read-only. It deletes itself after 24 hours.
 
 ## Screenshots
 
-| Landing | Notes (demo mode) | Search |
+| Home | Shop | Product |
 |---|---|---|
-| ![Landing page](docs/landing.png) | ![Notes view with demo banner](docs/notes.png) | ![Searching "blocker" finds the planning note](docs/search.png) |
+| ![Home page](docs/home.png) | ![Shop grid with filters](docs/shop.png) | ![Product page with sizes and stock](docs/product.png) |
+
+| Checkout | Admin dashboard | Admin products |
+|---|---|---|
+| ![Checkout with tax by province](docs/checkout.png) | ![Admin dashboard with revenue chart](docs/admin-dashboard.png) | ![Inline stock and price editing](docs/admin-products.png) |
 
 ## Architecture
 
 ```mermaid
 flowchart LR
-  B["Browser<br/>React + Vite SPA"] -- "HTTPS, JSON<br/>cookie: token (httpOnly)" --> A["Express API<br/>Render"]
+  B["Browser<br/>React SPA<br/>cart in localStorage"] -- "JSON over HTTPS<br/>httpOnly auth cookie" --> A["Express 5 API<br/>Render"]
   V["Vercel<br/>static hosting"] -. serves .-> B
-  A -- Mongoose --> M[("MongoDB Atlas<br/>users, notes")]
+  A -- Mongoose --> M[("MongoDB Atlas<br/>products · orders · users")]
 ```
 
-- `frontend/`: React 19 (Vite) + Tailwind 4, React Router, axios with `withCredentials`
-- `backend/`: Express, Mongoose models, JWT auth middleware, controllers per resource
-
-| Method | Route | What it does |
-|---|---|---|
-| POST | `/api/auth/signup`, `/login`, `/logout` | Session lifecycle (sets / clears the cookie) |
-| POST | `/api/auth/demo` | Creates and logs into a seeded throwaway account |
-| GET | `/api/auth/me` | Current user (used on page load to restore the session) |
-| GET | `/api/notes?q=&tag=&archived=&trash=` | List notes, pinned first, then most recently edited |
-| POST / PATCH | `/api/notes`, `/api/notes/:id` | Create, edit, pin, tag, archive |
-| DELETE | `/api/notes/:id` | Move to trash (soft delete) |
-| POST | `/api/notes/:id/restore` | Restore from trash |
-| DELETE | `/api/notes/:id/permanent` | Delete forever |
+| Method | Route | Who | What |
+|---|---|---|---|
+| GET | `/api/products?q=&collection=&sort=` | anyone | Catalog with filters |
+| GET | `/api/products/:slug` | anyone | Product + related prints |
+| POST | `/api/cart/quote` | anyone | Price a cart from the database (lines, problems, shipping, tax) |
+| POST | `/api/orders` | signed in | Re-price, reserve stock, create the order |
+| GET | `/api/orders`, `/api/orders/:id` | signed in | Your own orders only |
+| POST | `/api/auth/signup`, `/login`, `/logout`, `/demo` | anyone | Sessions (httpOnly cookie) |
+| GET | `/api/admin/stats`, `/orders`, `/products` | admin, demo (read-only) | Dashboard data |
+| PATCH/POST | `/api/admin/orders/:id`, `/products`, `/products/:id` | admin | Ship/cancel orders, edit or create products |
 
 ## Decisions
 
-**JWT in an httpOnly cookie, not localStorage.** Anything in localStorage can be read by any script on the page, so a single XSS bug would leak every session. An httpOnly cookie can't be read from JavaScript at all; the browser just attaches it to API requests.
+**The server sets every price.** The cart only ever sends product ids, variant ids and quantities. `/cart/quote` and `/orders` look the prices up in the database, so a tampered request (`"priceCents": 1`) changes nothing. Money is integer cents end to end and is only turned into dollars for display.
 
-**Cookie settings differ between dev and prod.** In production the frontend (Vercel) and API (Render) are on different domains, so the cookie is cross-site. Browsers only send cross-site cookies marked `SameSite=None`, and only accept `SameSite=None` together with `Secure` (HTTPS). Locally, Vite proxies `/api` so everything is same-origin, and `SameSite=Lax` works without HTTPS on localhost. CORS allows exactly one origin (`CLIENT_ORIGIN`) with credentials, never a wildcard.
+**Stock can't be oversold.** Placing an order takes stock with one conditional update per line: `updateOne({ variant: id, stock: { $gte: qty } }, { $inc: { stock: -qty } })`. MongoDB applies each update atomically, so when two people buy the last poster at the same moment only one update matches; the other gets a clear "just sold out" error. If a later line in the same order fails, the lines already taken are put back. (Multi-document transactions would also work on Atlas; this approach needs no replica set, so it runs the same against a local `mongod`.) Cancelling an order returns its stock.
 
-**Every query is scoped to the logged-in user.** Notes are always looked up by `{ _id, userId }`, so a note that belongs to someone else returns 404, the same as one that doesn't exist. This avoids revealing which IDs exist.
+**Orders are snapshots.** Each order line copies the name, size, artwork and unit price at purchase time, so editing or deleting a product later never rewrites order history or receipts.
 
-**Soft delete for Trash.** Trashing a note sets `deletedAt` instead of removing it, so restore is just clearing that field. Deleting forever is a separate, explicit endpoint.
+**Canadian tax and shipping.** Tax is worked out on the server from the shipping province (13% HST in Ontario, 14% in Nova Scotia, 5% GST + 7% PST in BC, and so on). It applies to subtotal plus shipping, because shipping is taxable in Canada. Postal codes are validated against the real format (no D, F, I, O, Q or U), then normalized to `B3H 4R2`.
 
-**Indexes match the queries.** A compound `{ userId, deletedAt }` index serves the list views. A text index on `title` + `body` powers search, so search matches whole words with stemming ("blockers" finds "blocker") instead of running a slow regex over every note.
+**Posters are drawn by code.** A product stores a recipe, `{ style, seed, palette }`, not an image. The client draws it as SVG with a seeded random generator (mulberry32), so the same seed always produces the same poster. The upshot: no image hosting, no stock photo licensing, crisp at any size, and the admin can design a new poster with a live preview.
 
-**Debounced writes.** The editor saves 500 ms after you stop typing, and search fires 300 ms after the last keystroke. That's one request per pause instead of one per keystroke.
+**Guest cart, signed-in checkout.** The cart lives in `localStorage` so visitors can shop before signing up. Its stored prices are only used for instant display; the server re-prices on every change. Checkout needs an account (or a demo account), so every order belongs to someone who can look it up later.
 
-**Demo accounts are per-visitor and clean themselves up.** A single shared demo login would show every visitor everyone else's edits (and whatever they typed). Instead, each click on **Try the Demo**:
-1. creates a fresh user with an unusable random password and seeds six sample notes that show off each feature;
-2. stamps the user and the notes with `expiresAt`, and MongoDB **TTL indexes** delete them automatically after 24 hours. Real accounts never have the field, so they never expire;
-3. issues a 24-hour JWT with `demo: true`, so notes the visitor creates get the same expiry;
-4. wipes the account immediately on **Exit Demo** instead of waiting for the TTL.
+**Admin is a role, checked on every request.** Accounts listed in the `ADMIN_EMAILS` env var get the `admin` role at sign-up or login. The API reads the role from the database on each admin request instead of trusting the token, so revoking access takes effect immediately. Customers asking for another person's order get a 404, the same as for an order that doesn't exist.
 
-The endpoint is rate-limited to 10 accounts per IP per hour so the free-tier database can't be flooded. Express trusts Render's proxy so the limit sees real client IPs.
+**The demo can't break the shop for everyone else.** Each visitor gets a private throwaway account, seeded with two past orders. Demo orders check stock but don't consume it, so visitors can't empty the shop. Demo accounts can browse the admin dashboard, but every admin write is refused. MongoDB TTL indexes delete demo users and orders after 24 hours, and **Exit demo** deletes them immediately. Demo creation is rate limited per IP.
 
-**Writing prompts are a static list, not an AI call.** Prompts are picked from curated pools matched to the note's tags. There's no API cost or latency, and it works offline.
+**A fresh database is never empty.** On startup, if there are no products, the server seeds the catalog plus ~30 sample orders spread over three weeks, so the dashboard has something to show. Sample orders are flagged and labelled in the admin. Set `SEED_SAMPLE_ORDERS=false` to skip them.
 
-**Free-tier hosting, with the trade-off made visible.** Vercel + Render + Atlas M0 costs nothing. The catch is Render's cold start, so the demo button shows a "waking up the server" message after 3 seconds instead of a silent spinner.
+**Auth.** JWTs live in an httpOnly cookie, so page scripts can't read them. In production the frontend and API are on different domains, so the cookie is `SameSite=None; Secure`. Locally, Vite proxies `/api` and `Lax` works without HTTPS. CORS allows exactly one origin.
+
+**Validation and errors.** Every request body is validated with zod, and bad input gets a 400 naming the field (`shippingAddress.postalCode: Enter a valid Canadian postal code`). Express 5 forwards errors from async handlers to one error handler, which returns client errors as-is and hides server errors behind a generic 500.
 
 ## Local setup
 
-### 1. MongoDB Atlas
-
-Create a free M0 cluster at https://www.mongodb.com/cloud/atlas, add a database user, allow your IP (or `0.0.0.0/0` for dev), and copy the connection string.
-
-### 2. Backend
-
-```bash
-cd backend
-cp .env.example .env
-# fill in MONGODB_URI and JWT_SECRET in .env
-npm install
-npm run dev
-```
-
-Runs on http://localhost:5000.
-
-### 3. Frontend
-
-```bash
-cd frontend
-npm install
-npm run dev
-```
-
-Runs on http://localhost:5173 and proxies `/api` requests to the backend during dev.
+1. **MongoDB:** create a free Atlas M0 cluster (or run `mongod` locally) and copy the connection string.
+2. **Backend**
+   ```bash
+   cd backend
+   cp .env.example .env   # set MONGODB_URI, JWT_SECRET, and your email in ADMIN_EMAILS
+   npm install
+   npm run dev            # http://localhost:5000, seeds the catalog on first run
+   ```
+3. **Frontend**
+   ```bash
+   cd frontend
+   npm install
+   npm run dev            # http://localhost:5173, proxies /api to the backend
+   ```
+4. Sign up with the email you put in `ADMIN_EMAILS` to get the **Admin** link.
 
 ## Deploy
 
-Currently deployed as:
+- **Frontend → Vercel**: root directory `frontend`, preset "Vite", env var `VITE_API_URL=https://<render-app>.onrender.com/api`.
+- **Backend → Render**: root directory `backend`, build `npm install`, start `npm start`. Env vars: `MONGODB_URI`, `JWT_SECRET`, `CLIENT_ORIGIN` (the Vercel URL), `NODE_ENV=production`, `ADMIN_EMAILS`.
+- **Database → MongoDB Atlas** free M0 cluster.
 
-- **Frontend → Vercel**: root directory `frontend`, framework preset "Vite". Env var `VITE_API_URL` points at the Render backend (`https://<render-app>.onrender.com/api`).
-- **Backend → Render**: root directory `backend`, build command `npm install`, start command `npm start`. Env vars: `MONGODB_URI`, `JWT_SECRET`, `CLIENT_ORIGIN` (the Vercel URL), `NODE_ENV=production`.
-- **Database → MongoDB Atlas**: free M0 cluster, used by the Render backend via `MONGODB_URI`.
+## What's next
 
-To fork and redeploy your own copy, follow the same setup: new Vercel project, new Render web service, new Atlas cluster, wiring the env vars above between them.
+- Real payments with Stripe Checkout in test mode (card details handled by Stripe, order confirmed by webhook).
+- Automated tests (Vitest + Supertest for pricing, stock and permissions; a Playwright run of the checkout) in GitHub Actions.
+- Moving the API onto Vercel functions to remove the cold start.

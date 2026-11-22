@@ -5,7 +5,7 @@ import { requireAuth } from "../middleware/auth.js";
 
 const router = Router();
 
-// Each demo click creates an account + a handful of notes, so cap it per IP
+// Each demo click creates an account + a couple of orders, so cap it per IP
 // to keep the free-tier database from being flooded.
 const demoLimiter = rateLimit({
   windowMs: 60 * 60 * 1000,

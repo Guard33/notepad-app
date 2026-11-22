@@ -1,9 +1,10 @@
 import crypto from "node:crypto";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
+import { z } from "zod";
 import User from "../models/User.js";
-import Note from "../models/Note.js";
-import { DEMO_NOTES } from "../lib/demoNotes.js";
+import { parse } from "../lib/http.js";
+import { seedDemoOrders, wipeDemoData } from "../lib/demoSeed.js";
 
 const isProd = process.env.NODE_ENV === "production";
 
@@ -21,6 +22,20 @@ const COOKIE_OPTIONS = {
 
 const DEMO_TTL_MS = 24 * 60 * 60 * 1000;
 
+const credentials = z.object({
+  email: z.email("Enter a valid email").trim().toLowerCase(),
+  password: z.string().min(8, "Password must be at least 8 characters").max(200),
+});
+
+// Admin accounts come from the ADMIN_EMAILS env var (comma separated).
+function isAdminEmail(email) {
+  return (process.env.ADMIN_EMAILS ?? "")
+    .split(",")
+    .map((e) => e.trim().toLowerCase())
+    .filter(Boolean)
+    .includes(email);
+}
+
 function signToken(userId) {
   return jwt.sign({ userId }, process.env.JWT_SECRET, { expiresIn: "7d" });
 }
@@ -29,51 +44,43 @@ function publicUser(user) {
   return {
     id: user._id,
     email: user.email,
+    role: user.role ?? "customer",
     isDemo: Boolean(user.isDemo),
     expiresAt: user.expiresAt ?? null,
   };
 }
 
 export async function signup(req, res) {
-  const { email, password } = req.body;
-  if (!email || !password) {
-    return res.status(400).json({ error: "Email and password are required" });
-  }
-  if (password.length < 8) {
-    return res.status(400).json({ error: "Password must be at least 8 characters" });
-  }
-
-  const existing = await User.findOne({ email: email.toLowerCase() });
-  if (existing) return res.status(409).json({ error: "Account already exists" });
+  const { email, password } = parse(credentials, req.body);
+  const existing = await User.findOne({ email });
+  if (existing) return res.status(409).json({ error: "An account with that email already exists" });
 
   const passwordHash = await bcrypt.hash(password, 10);
-  const user = await User.create({ email, passwordHash });
+  const user = await User.create({ email, passwordHash, role: isAdminEmail(email) ? "admin" : "customer" });
 
-  const token = signToken(user._id);
-  res.cookie("token", token, COOKIE_OPTIONS);
+  res.cookie("token", signToken(user._id), COOKIE_OPTIONS);
   res.status(201).json(publicUser(user));
 }
 
 export async function login(req, res) {
-  const { email, password } = req.body;
-  if (!email || !password) {
-    return res.status(400).json({ error: "Email and password are required" });
+  const { email, password } = parse(credentials.extend({ password: z.string().min(1).max(200) }), req.body);
+  const user = await User.findOne({ email, isDemo: { $ne: true } });
+  if (!user || !(await bcrypt.compare(password, user.passwordHash))) {
+    return res.status(401).json({ error: "Invalid email or password" });
+  }
+  // Lets an existing account become admin by adding it to ADMIN_EMAILS.
+  if (user.role !== "admin" && isAdminEmail(email)) {
+    user.role = "admin";
+    await user.save();
   }
 
-  const user = await User.findOne({ email: email.toLowerCase() });
-  if (!user) return res.status(401).json({ error: "Invalid email or password" });
-
-  const valid = await bcrypt.compare(password, user.passwordHash);
-  if (!valid) return res.status(401).json({ error: "Invalid email or password" });
-
-  const token = signToken(user._id);
-  res.cookie("token", token, COOKIE_OPTIONS);
+  res.cookie("token", signToken(user._id), COOKIE_OPTIONS);
   res.json(publicUser(user));
 }
 
-// One click, no sign-up: creates a private throwaway account seeded with
-// sample notes. Each visitor gets their own, so nobody sees anyone else's
-// edits. TTL indexes on User and Note delete it all after 24 hours.
+// One click, no sign-up: a private throwaway customer account with a couple
+// of past orders. It can also look around the admin dashboard (read-only).
+// TTL indexes delete the account and its orders after 24 hours.
 export async function demo(_req, res) {
   const expiresAt = new Date(Date.now() + DEMO_TTL_MS);
   const user = await User.create({
@@ -83,17 +90,7 @@ export async function demo(_req, res) {
     isDemo: true,
     expiresAt,
   });
-
-  // Insert one at a time so updatedAt increases down the list, which keeps
-  // the sidebar order (newest first) the same as DEMO_NOTES order reversed.
-  for (const { trashed, ...note } of DEMO_NOTES) {
-    await Note.create({
-      ...note,
-      userId: user._id,
-      deletedAt: trashed ? new Date() : null,
-      expiresAt,
-    });
-  }
+  await seedDemoOrders(user._id, expiresAt);
 
   const token = jwt.sign({ userId: user._id, demo: true }, process.env.JWT_SECRET, {
     expiresIn: DEMO_TTL_MS / 1000,
@@ -108,7 +105,7 @@ export async function logout(req, res) {
   try {
     const payload = jwt.verify(req.cookies?.token ?? "", process.env.JWT_SECRET);
     if (payload.demo) {
-      await Note.deleteMany({ userId: payload.userId });
+      await wipeDemoData(payload.userId);
       await User.deleteOne({ _id: payload.userId, isDemo: true });
     }
   } catch {
@@ -119,7 +116,7 @@ export async function logout(req, res) {
 }
 
 export async function me(req, res) {
-  const user = await User.findById(req.userId).select("email isDemo expiresAt");
+  const user = await User.findById(req.userId).select("email role isDemo expiresAt");
   if (!user) return res.status(404).json({ error: "User not found" });
   res.json(publicUser(user));
 }
