@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import api from "../api/client";
 import { useAuth } from "../context/AuthContext";
 import DemoButton from "../components/DemoButton";
+import NightOcean from "../components/NightOcean";
 import Poster from "../components/Poster";
 import ProductCard from "../components/ProductCard";
 import { Spinner } from "../components/ui";
@@ -27,17 +28,22 @@ export default function Home() {
 
   return (
     <div>
-      <section className="mx-auto grid max-w-6xl items-center gap-10 px-4 pt-12 pb-16 md:grid-cols-2 md:pt-20">
+      {/* The hero is always a night scene (in light mode too), so its text
+          and buttons use fixed light-on-dark colours rather than theme tokens. */}
+      <section className="relative overflow-hidden bg-[#070b1d]">
+        <NightOcean className="absolute inset-0 h-full w-full" />
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-[#070b1d]/65 via-[#070b1d]/15 via-30% to-transparent to-50%" aria-hidden="true" />
+        <div className="relative mx-auto grid max-w-6xl items-center gap-10 px-4 pt-12 pb-28 md:grid-cols-2 md:pt-20 md:pb-36">
         <div>
-          <p className="text-sm font-medium tracking-wide text-accent-text uppercase">Generative art prints</p>
-          <h1 className="heading mt-3 text-5xl leading-[1.05] md:text-6xl">Posters drawn by code, printed on paper.</h1>
-          <p className="mt-5 max-w-md text-lg text-muted">
+          <p className="text-sm font-medium tracking-wide text-[#9cbbe6] uppercase">Generative art prints</p>
+          <h1 className="heading mt-3 text-5xl leading-[1.05] text-[#f3f0ea] md:text-6xl">Posters drawn by code, printed on paper.</h1>
+          <p className="mt-5 max-w-md text-lg text-[#b9c3d6]">
             Tides, sunsets and survey-map contours from the Atlantic coast, each one generated from a single number.
           </p>
           <div className="mt-8 flex flex-wrap items-start gap-3">
-            <Link to="/shop" className="btn btn-primary btn-lg">Shop all prints</Link>
+            <Link to="/shop" className="btn btn-lg border-transparent bg-[#eef2f8] text-[#0c1530] hover:bg-white">Shop all prints</Link>
             {!user && (
-              <DemoButton className="btn btn-lg" to="/shop">
+              <DemoButton className="btn btn-lg border-white/30 bg-[#0c1530]/85 text-[#eef2f8] backdrop-blur-sm hover:bg-[#16224a]" to="/shop">
                 Try a demo account
               </DemoButton>
             )}
@@ -51,6 +57,7 @@ export default function Home() {
               <Poster art={hero[0].art} name={hero[0].name} className="poster-shadow absolute top-0 left-1/2 w-[54%] -translate-x-1/2" />
             </>
           )}
+        </div>
         </div>
       </section>
 
