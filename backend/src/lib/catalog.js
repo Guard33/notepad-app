@@ -110,10 +110,16 @@ async function seedSampleOrders(products) {
 }
 
 // Called on server start: fills an empty database so a fresh deploy (or a
-// teammate's local setup) works with no manual seeding step.
+// teammate's local setup) works with no manual seeding step. Products and
+// sample orders are checked separately, so if a deploy is stopped halfway
+// through seeding, the next start finishes the job instead of skipping it.
 export async function seedCatalogIfEmpty() {
-  if (await Product.estimatedDocumentCount()) return;
-  const products = await Product.insertMany(catalogProducts());
-  if (process.env.SEED_SAMPLE_ORDERS !== "false") await seedSampleOrders(products);
-  console.log(`Seeded ${products.length} products`);
+  if (!(await Product.estimatedDocumentCount())) {
+    const inserted = await Product.insertMany(catalogProducts());
+    console.log(`Seeded ${inserted.length} products`);
+  }
+  if (process.env.SEED_SAMPLE_ORDERS !== "false" && !(await Order.exists({ sample: true }))) {
+    await seedSampleOrders(await Product.find({ active: true }).lean());
+    console.log("Seeded sample orders");
+  }
 }
