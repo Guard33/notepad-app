@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import QuillIcon from "../components/QuillIcon";
+import DemoButton from "../components/DemoButton";
 
 export default function Login() {
   const { login } = useAuth();
@@ -76,6 +77,12 @@ export default function Login() {
             </Link>
           </p>
         </form>
+
+        <div className="mt-6">
+          <DemoButton className="text-sm font-medium text-accent underline">
+            Or try the demo without an account →
+          </DemoButton>
+        </div>
       </div>
     </div>
   );

@@ -1,6 +1,7 @@
 import { Link, Navigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import QuillIcon from "../components/QuillIcon";
+import DemoButton from "../components/DemoButton";
 
 export default function Landing() {
   const { user, loading } = useAuth();
@@ -27,6 +28,11 @@ export default function Landing() {
           <Link to="/login" className="pixel-btn pixel-btn-outline px-6 py-3">
             Log In
           </Link>
+        </div>
+
+        <div className="mt-6 w-full border-t-[3px] border-dashed border-ink-soft/40 pt-6">
+          <p className="mb-3 text-sm text-ink-soft">Just looking around? No sign-up needed.</p>
+          <DemoButton className="pixel-btn pixel-btn-outline px-6 py-3">✦ Try the Demo</DemoButton>
         </div>
       </div>
 
