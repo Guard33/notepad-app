@@ -32,7 +32,7 @@ export default function Home() {
           and buttons use fixed light-on-dark colours rather than theme tokens. */}
       <section className="relative overflow-hidden bg-[#070b1d]">
         <NightOcean className="absolute inset-0 h-full w-full" />
-        <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-[#070b1d]/70 via-[#070b1d]/20 to-transparent" aria-hidden="true" />
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-[#070b1d]/65 via-[#070b1d]/15 via-30% to-transparent to-50%" aria-hidden="true" />
         <div className="relative mx-auto grid max-w-6xl items-center gap-10 px-4 pt-12 pb-28 md:grid-cols-2 md:pt-20 md:pb-36">
         <div>
           <p className="text-sm font-medium tracking-wide text-[#9cbbe6] uppercase">Generative art prints</p>
