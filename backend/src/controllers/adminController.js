@@ -107,7 +107,7 @@ export async function listAllProducts(_req, res) {
   res.json(await Product.find().sort({ collectionName: 1, name: 1 }).lean());
 }
 
-const slugify = (s) => s.toLowerCase().replace(/['’]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+const slugify = (s) => s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().replace(/['’]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 
 export async function createProduct(req, res) {
   const input = parse(productCreate, req.body);
