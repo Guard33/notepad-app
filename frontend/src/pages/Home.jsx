@@ -43,7 +43,7 @@ export default function Home() {
           <div className="mt-8 flex flex-wrap items-start gap-3">
             <Link to="/shop" className="btn btn-lg border-transparent bg-[#eef2f8] text-[#0c1530] hover:bg-white">Shop all prints</Link>
             {!user && (
-              <DemoButton className="btn btn-lg border-white/30 bg-white/5 text-[#eef2f8] hover:bg-white/10" to="/shop">
+              <DemoButton className="btn btn-lg border-white/30 bg-[#0c1530]/85 text-[#eef2f8] backdrop-blur-sm hover:bg-[#16224a]" to="/shop">
                 Try a demo account
               </DemoButton>
             )}

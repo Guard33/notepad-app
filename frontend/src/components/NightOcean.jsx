@@ -1,7 +1,8 @@
 import { useEffect, useRef } from "react";
 
-// Animated pixel-art night ocean: stepped sky, twinkling stars, a pixel
-// moon and slow rolling waves with a shimmering moon path.
+// Animated pixel-art night ocean: stepped sky, twinkling stars, a crescent
+// moon, and rough, peaky waves with bright crest lines, whitecaps and spray,
+// plus a shimmering moon path.
 //
 // It's drawn into a small canvas (one canvas pixel = PIXEL css pixels) and
 // scaled up with `image-rendering: pixelated`, so it stays crisp and costs
@@ -11,12 +12,11 @@ const PIXEL = 5;
 const FPS = 12;
 
 const SKY = ["#070b1d", "#080e24", "#0a122b", "#0c1632", "#0f1a3a", "#121f42", "#15244a", "#182951"];
-const WATER = ["#22406f", "#1c3762", "#172f56", "#12274a", "#0e1f3e", "#0a1832", "#071226"];
-const CREST = "#3f6496";
-const FOAM = "#8fb0d9";
+const WATER = ["#2a4c80", "#22416f", "#1b3761", "#152d53", "#102445", "#0b1b37", "#07132a"];
+const CREST = "#5a82bb";
+const FOAM = "#b9d0ee";
 const STAR = [233, 236, 247];
 const MOON = "#f2eed8";
-const MOON_SHADE = "#d9d3b4";
 const SHIMMER = [214, 224, 240];
 
 function rgb(hex) {
@@ -59,19 +59,26 @@ function buildScene(w, h) {
   // Desktop: centred in the gap between the headline and the posters.
   // Narrow screens: tucked into the top-right corner, clear of the text.
   const wide = w * PIXEL >= 768;
-  const r = Math.max(3, Math.min(6, Math.round(Math.min(w, h) * 0.04)));
+  const r = Math.max(4, Math.min(7, Math.round(Math.min(w, h) * 0.05)));
   const moon = wide
     ? { x: Math.round(w * 0.5), y: Math.round(horizon * 0.17), r }
     : { x: w - r - 4, y: r + 4, r };
-  const layers = WATER.map((color, i) => ({
-    color: rgb(color),
-    base: horizon + Math.round(((h - horizon) * Math.pow(i / WATER.length, 1.25)) + 1),
-    amp: 0.6 + i * 0.55,
-    freq: 0.09 - i * 0.008,
-    speed: 0.45 + i * 0.12,
-    phase: rand() * Math.PI * 2,
-    dir: i % 2 ? -1 : 1,
-  }));
+  // Nearer layers are taller, longer and faster, like a real swell.
+  const crest = rgb(CREST);
+  const layers = WATER.map((color, i) => {
+    const c = rgb(color);
+    return {
+      color: c,
+      // Each layer's top edge gets a lighter line so every wave reads clearly.
+      edge: c.map((v, k) => Math.round(v + (crest[k] - v) * 0.55)),
+      base: horizon + Math.round((h - horizon) * Math.pow(i / WATER.length, 1.15)) + 2,
+      amp: 1.4 + i * 1.15,
+      freq: 0.12 - i * 0.01,
+      speed: 0.9 + i * 0.22,
+      phase: rand() * Math.PI * 2,
+      dir: i % 2 ? -1 : 1,
+    };
+  });
   return { horizon, stars, moon, layers };
 }
 
@@ -106,34 +113,49 @@ function draw(ctx, img, w, h, scene, t) {
     }
   }
 
-  // Moon: soft halo, then a pixel disc with a couple of darker patches.
+  // Crescent moon: the moon's disc minus a second disc nudged up and to
+  // the right, with a faint halo around the lit edge.
   const { moon } = scene;
   const [mr, mg, mb] = rgb(MOON);
-  const [sr, sg, sb] = rgb(MOON_SHADE);
+  const cut = { x: moon.r * 0.5, y: -moon.r * 0.25, r: moon.r * 0.92 };
   for (let dy = -moon.r * 2; dy <= moon.r * 2; dy++) {
     for (let dx = -moon.r * 2; dx <= moon.r * 2; dx++) {
-      const d = Math.sqrt(dx * dx + dy * dy);
-      if (d <= moon.r) {
-        const shade = (dx > 0 && dy < 0 && dx * dx + dy * dy < moon.r * moon.r * 0.18) || (dx < -1 && dy > 1 && dx > -moon.r * 0.7);
-        put(moon.x + dx, moon.y + dy, ...(shade ? [sr, sg, sb] : [mr, mg, mb]));
-      } else if (d <= moon.r * 2) {
-        put(moon.x + dx, moon.y + dy, mr, mg, mb, 0.07 * (1 - (d - moon.r) / moon.r));
+      const d = Math.hypot(dx, dy);
+      const inCut = Math.hypot(dx - cut.x, dy - cut.y) <= cut.r;
+      if (d <= moon.r && !inCut) {
+        put(moon.x + dx, moon.y + dy, mr, mg, mb);
+      } else if (d > moon.r && d <= moon.r * 2 && !inCut) {
+        put(moon.x + dx, moon.y + dy, mr, mg, mb, 0.08 * (1 - (d - moon.r) / moon.r));
       }
     }
   }
 
-  // Waves, back to front. Each layer is a filled sine band; crests get a
-  // lighter pixel, and the nearest layers get the odd fleck of foam.
-  const crest = rgb(CREST);
+  // Waves, back to front. The shape is a skewed, sharpened sine: narrow
+  // pointed crests with a steep leading face and wide troughs, plus some
+  // cross-chop. Every layer gets a bright top edge; high crests on the
+  // nearer layers break into whitecaps and throw a little spray.
   const foam = rgb(FOAM);
   const water = new Int16Array(w);
   scene.layers.forEach((L, i) => {
     for (let x = 0; x < w; x++) {
-      const p = x * L.freq + t * L.speed * L.dir + L.phase;
-      const y = Math.round(L.base + L.amp * Math.sin(p) + L.amp * 0.4 * Math.sin(p * 2.3 + t * 0.3));
-      for (let yy = Math.max(y, scene.horizon); yy < h; yy++) put(x, yy, ...L.color);
-      const peak = Math.cos(p) > 0.85 || Math.cos(p) < -0.97;
-      if (y >= scene.horizon && peak) put(x, y, ...(i >= 4 && hash(x, i, Math.floor(t * 2)) > 0.8 ? foam : crest));
+      let p = x * L.freq + t * L.speed * L.dir + L.phase;
+      p += 0.55 * Math.sin(p) * L.dir; // lean the crest forward
+      const u = (Math.sin(p) + 1) / 2;
+      const peak = Math.pow(u, 2.4);
+      const chop = Math.sin(x * L.freq * 2.6 - t * L.speed * 0.8 * L.dir + i);
+      const y = Math.round(L.base + L.amp * (0.45 - 1.25 * peak) + L.amp * 0.28 * chop);
+      const top = Math.max(y, scene.horizon);
+      for (let yy = top; yy < h; yy++) put(x, yy, ...L.color);
+      if (y >= scene.horizon) {
+        put(x, y, ...L.edge);
+        if (i >= 2 && peak > 0.72) {
+          put(x, y, ...foam, 0.85);
+          if (i >= 3) put(x, y + 1, ...foam, 0.45);
+        }
+        if (i >= 3 && peak > 0.9 && hash(x, i, Math.floor(t * 4)) > 0.55) {
+          put(x, y - 1 - Math.floor(hash(i, x, Math.floor(t * 4)) * 3), ...foam, 0.7);
+        }
+      }
       if (i === 0) water[x] = y;
     }
   });
